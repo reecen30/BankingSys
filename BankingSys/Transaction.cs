@@ -20,7 +20,7 @@ namespace BankingSys
         public int ClientID { get; set; }
         public string Comment { get; set; }
     
-        public virtual Client ClientName { get; set; }
+        public virtual Client Client { get; set; }
         public virtual TransactionType TransactionType { get; set; }
     }
 }
