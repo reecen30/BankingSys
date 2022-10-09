@@ -30,10 +30,20 @@ namespace BankingSys
         {
             InitializeComponent();
             TitleAdd.Text = "Edit A Transaction";
-            PopulateFields(CEdit);
             _form1 = form1;
-            IsEditMode = true;
-            bankingRecEntities = new BankingRecEntities();
+
+            if (CEdit == null)
+            {
+                MessageBox.Show("Please ensure that you selected a valid record to edit");
+                Close();
+            }
+            else
+            {
+                IsEditMode = true;
+                bankingRecEntities = new BankingRecEntities();
+                PopulateFields(CEdit);
+            }  
+            
         }
 
         private void PopulateFields(Transaction trans)

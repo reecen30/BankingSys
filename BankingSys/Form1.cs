@@ -9,12 +9,13 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Data.SqlClient;
 using System.Configuration;
-
+using System.Runtime.CompilerServices;
+using BankingSys;
 
 namespace BankingSys
 {
     public partial class Form1 : Form
-    {
+    {   
         private readonly BankingRecEntities bankingRecEntities;
         public Form1()
         {
@@ -22,16 +23,10 @@ namespace BankingSys
             bankingRecEntities = new BankingRecEntities();  
         }
 
-        private void label1_Click(object sender, EventArgs e)
-        {
-
-        }
         private void Form1_Load(object sender, EventArgs e)
         {
-            var banking = bankingRecEntities.Clients.ToList();
-            cbClient.DisplayMember = "Name";
-            cbClient.ValueMember = "ClientID";
-            cbClient.DataSource = banking;
+            cbclient.DataSource = bankingRecEntities.Clients.ToList();
+            PopulateGrid();
 
             try
             {
@@ -41,6 +36,7 @@ namespace BankingSys
             {
                 MessageBox.Show(ex.Message);
             }
+
         }
 
         public void PopulateGrid()
@@ -56,29 +52,39 @@ namespace BankingSys
             }).ToList();
 
             dataGridView1.DataSource = records;
-           /* dataGridView1.Columns["ClientName"].Visible = false;*/
+            /* dataGridView1.Columns["ClientName"].Visible = false;*/
+
         }
 
-        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        private void cbclient_SelectedIndexChanged(object sender, EventArgs e)
         {
-            String SelectedItem = cbClient.SelectedItem.ToString();
-            dataGridView1.DataSource = bankingRecEntities.Transactions.Where(x => x.Client.Name == SelectedItem).ToList();
+            dataGridView1.DataSource = bankingRecEntities.Transactions.Where(x => x.ClientID == (cbclient.SelectedIndex+1)).ToList();
 
+        }
 
+        private void tbClient_TextChanged(object sender, EventArgs e)
+        {
+            dataGridView1.DataSource = bankingRecEntities.Transactions.Where(x => x.Client.Name.Contains(tbClient.Text) || x.Client.Surname.Contains(tbClient.Text)).ToList();
+        }
+
+        private void ShowT_Click(object sender, EventArgs e)
+        {
+            var Records = bankingRecEntities.Transactions.ToList();
+            dataGridView1.DataSource = Records;
         }
 
         private void bEditComment_Click(object sender, EventArgs e)
         {
             try
             {
-                var id = dataGridView1.SelectedRows[0].Cells["ClientName"].Value;
-                var trans = bankingRecEntities.Transactions.FirstOrDefault(q => q.Client.Name == id);
+                var id = Convert.ToInt32(dataGridView1.SelectedRows[0].Cells["TransactionIDDataGridViewTextBoxColumn"].Value);
+                var trans = bankingRecEntities.Transactions.FirstOrDefault(q => q.TransactionID == id);
                 var addEdit = new AddEdit(trans, this);
                 addEdit.Show();
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Please select a row to edit");
+                MessageBox.Show("Please Select A Row To Edit");
             }
 
         }
@@ -86,7 +92,7 @@ namespace BankingSys
         private void bAddTransaction_Click(object sender, EventArgs e)
         {
             var addEdit = new AddEdit(this);
-            addEdit.Show();
+            addEdit.ShowDialog();
         }
     }
 }
